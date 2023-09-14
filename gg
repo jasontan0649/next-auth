@@ -1,0 +1,65 @@
+import { useState, useEffect } from 'react';
+
+function NewsPage({ initialCategory, initialArticles }) {
+  const [category, setCategory] = useState(initialCategory);
+  const [articles, setArticles] = useState(initialArticles);
+
+  useEffect(() => {
+    // Fetch news articles based on the selected category
+    async function fetchArticles() {
+      try {
+        const response = await fetch(
+          // Replace with your API endpoint for fetching articles by category
+          `https://api.example.com/news?category=${category}`
+        );
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setArticles(data.articles);
+      } catch (error) {
+        console.error('Error fetching news articles:', error);
+      }
+    }
+
+    fetchArticles();
+  }, [category]);
+
+  const handleCategoryChange = (e) => {
+    setCategory(e.target.value);
+  };
+
+  return (
+    <div>
+      <h1>News Articles</h1>
+      <label htmlFor="category">Select a category:</label>
+      <select id="category" onChange={handleCategoryChange} value={category}>
+        <option value="all">All</option>
+        <option value="technology">Technology</option>
+        <option value="sports">Sports</option>
+        <option value="business">Business</option>
+      </select>
+
+      <ul>
+        {articles.map((article, index) => (
+          <li key={index}>{article.title}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export async function getServerSideProps() {
+  // Simulate fetching the initial category and articles from an API or database.
+  const initialCategory = 'all'; // You can fetch this value from an API or database.
+  const initialArticles = []; // You can fetch initial articles based on the category.
+
+  return {
+    props: {
+      initialCategory,
+      initialArticles,
+    },
+  };
+}
+
+export default NewsPage;
